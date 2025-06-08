@@ -8,34 +8,21 @@ import { parseZATCAQR } from '@/lib/zatca-parser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { InsertScannedQR } from '@shared/schema';
+import QrScanner from 'qr-scanner';
 
 interface QRScannerProps {
   sessionId: string;
   onScanSuccess?: () => void;
 }
 
-interface QRCodeDetector {
-  detect(imageData: ImageData): Promise<{ rawValue: string }[]>;
-}
-
-declare global {
-  interface Window {
-    QRCodeDetector?: {
-      new (): QRCodeDetector;
-    };
-  }
-}
-
 export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) {
   const [scanMode, setScanMode] = useState<'camera' | 'upload'>('camera');
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanResult, setLastScanResult] = useState<any>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [qrScannerInstance, setQrScannerInstance] = useState<QrScanner | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -53,19 +40,24 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   });
 
   const startCamera = async () => {
+    if (!videoRef.current) return;
+
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 640 },
-          height: { ideal: 480 }
+      const scanner = new QrScanner(
+        videoRef.current,
+        async (result) => {
+          await processQRCode(result.data);
+        },
+        {
+          returnDetailedScanResult: true,
+          preferredCamera: 'environment',
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
         }
-      });
+      );
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        setStream(mediaStream);
-      }
+      setQrScannerInstance(scanner);
+      await scanner.start();
     } catch (error) {
       toast({
         title: "Camera Error",
@@ -76,43 +68,9 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    if (scanIntervalRef.current) {
-      clearInterval(scanIntervalRef.current);
-      scanIntervalRef.current = null;
-    }
-  };
-
-  const scanQRFromVideo = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    if (!context || video.videoWidth === 0) return;
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0);
-
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    
-    try {
-      // Try using native QRCodeDetector if available
-      if (window.QRCodeDetector) {
-        const detector = new window.QRCodeDetector();
-        const qrCodes = await detector.detect(imageData);
-        
-        if (qrCodes.length > 0) {
-          await processQRCode(qrCodes[0].rawValue);
-        }
-      }
-    } catch (error) {
-      // Silent fail for scanning attempts
+    if (qrScannerInstance) {
+      qrScannerInstance.destroy();
+      setQrScannerInstance(null);
     }
   };
 
@@ -155,17 +113,11 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   const toggleScanning = async () => {
     if (isScanning) {
       setIsScanning(false);
-      if (scanIntervalRef.current) {
-        clearInterval(scanIntervalRef.current);
-        scanIntervalRef.current = null;
-      }
+      stopCamera();
     } else {
       if (scanMode === 'camera') {
-        if (!stream) {
-          await startCamera();
-        }
         setIsScanning(true);
-        scanIntervalRef.current = setInterval(scanQRFromVideo, 500);
+        await startCamera();
       }
     }
   };
@@ -174,46 +126,19 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = async () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      context?.drawImage(img, 0, 0);
+    try {
+      const result = await QrScanner.scanImage(file, {
+        returnDetailedScanResult: true,
+      });
       
-      const imageData = context?.getImageData(0, 0, canvas.width, canvas.height);
-      
-      if (imageData) {
-        try {
-          if (window.QRCodeDetector) {
-            const detector = new window.QRCodeDetector();
-            const qrCodes = await detector.detect(imageData);
-            
-            if (qrCodes.length > 0) {
-              await processQRCode(qrCodes[0].rawValue);
-            } else {
-              toast({
-                title: "No QR Code Found",
-                description: "Could not detect a QR code in the uploaded image",
-                variant: "destructive",
-              });
-            }
-          }
-        } catch (error) {
-          toast({
-            title: "Scan Error",
-            description: "Failed to process uploaded image",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-    
-    img.src = URL.createObjectURL(file);
+      await processQRCode(result.data);
+    } catch (error) {
+      toast({
+        title: "No QR Code Found",
+        description: "Could not detect a QR code in the uploaded image",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -306,8 +231,7 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
           </div>
         )}
 
-        {/* Hidden canvas for QR processing */}
-        <canvas ref={canvasRef} className="hidden" />
+
 
         {/* Scan Status */}
         <div className="flex items-center justify-between mb-4">
@@ -321,7 +245,7 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
             <Button
               onClick={toggleScanning}
               size="sm"
-              disabled={!stream}
+              disabled={false}
             >
               {isScanning ? (
                 <>
