@@ -32,12 +32,14 @@ export default function Scanner() {
   // Get session stats
   const { data: stats } = useQuery({
     queryKey: ['/api/sessions', sessionId, 'stats'],
+    queryFn: () => apiRequest('GET', `/api/sessions/${sessionId}/stats`).then(res => res.json()),
     enabled: !!sessionId,
   });
 
   // Get scanned QR codes
   const { data: qrCodes = [] } = useQuery({
     queryKey: ['/api/qr-codes', sessionId],
+    queryFn: () => apiRequest('GET', `/api/qr-codes/${sessionId}`).then(res => res.json()),
     enabled: !!sessionId,
   });
 

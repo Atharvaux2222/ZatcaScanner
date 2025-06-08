@@ -20,9 +20,12 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanResult, setLastScanResult] = useState<any>(null);
   const [qrScannerInstance, setQrScannerInstance] = useState<QrScanner | null>(null);
+  const [lastScannedData, setLastScannedData] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -45,8 +48,8 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     try {
       const scanner = new QrScanner(
         videoRef.current,
-        async (result) => {
-          await processQRCode(result.data);
+        (result) => {
+          handleQRDetection(result.data);
         },
         {
           returnDetailedScanResult: true,
@@ -74,7 +77,28 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     }
   };
 
+  const handleQRDetection = (qrData: string) => {
+    // Prevent duplicate scans and debounce rapid detections
+    if (qrData === lastScannedData || isProcessing) {
+      return;
+    }
+
+    // Clear any existing timeout
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    // Debounce the processing to prevent rapid-fire scans
+    debounceTimeout.current = setTimeout(() => {
+      processQRCode(qrData);
+    }, 1000); // 1 second debounce
+  };
+
   const processQRCode = async (qrData: string) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    setLastScannedData(qrData);
     const parsedData = parseZATCAQR(qrData);
     
     const qrRecord: InsertScannedQR = {
@@ -107,6 +131,8 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
         description: "Failed to save QR code data",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -131,7 +157,7 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
         returnDetailedScanResult: true,
       });
       
-      await processQRCode(result.data);
+      handleQRDetection(result.data);
     } catch (error) {
       toast({
         title: "No QR Code Found",
@@ -156,6 +182,9 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   useEffect(() => {
     return () => {
       stopCamera();
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
     };
   }, []);
 
