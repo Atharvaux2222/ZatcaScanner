@@ -62,7 +62,7 @@ export default function DetailModal({ isOpen, onClose, qr }: DetailModalProps) {
               <dl className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Seller Name:</dt>
-                  <dd className="font-medium text-right">{qr.sellerName || '-'}</dd>
+                  <dd className="font-medium text-right auto-dir">{qr.sellerName || '-'}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-gray-600">VAT Number:</dt>

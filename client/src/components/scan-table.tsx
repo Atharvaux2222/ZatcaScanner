@@ -33,6 +33,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
 
   const { data: qrCodes = [], isLoading } = useQuery({
     queryKey: ['/api/qr-codes', sessionId],
+    queryFn: () => apiRequest('GET', `/api/qr-codes/${sessionId}`).then(res => res.json()),
     enabled: !!sessionId,
   });
 
@@ -237,7 +238,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {qr.sellerName || '-'}
+                      <span className="auto-dir">{qr.sellerName || '-'}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {qr.vatNumber || '-'}

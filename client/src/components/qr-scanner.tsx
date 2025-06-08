@@ -281,7 +281,7 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
                 </Badge>
               </div>
               {lastScanResult.sellerName && (
-                <div>Seller: <span className="font-medium">{lastScanResult.sellerName}</span></div>
+                <div>Seller: <span className="font-medium auto-dir">{lastScanResult.sellerName}</span></div>
               )}
               {lastScanResult.totalAmount && (
                 <div>Amount: <span className="font-medium">{parseFloat(lastScanResult.totalAmount).toFixed(2)} SAR</span></div>

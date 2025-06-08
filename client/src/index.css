@@ -101,4 +101,24 @@
   .border-error {
     border-color: hsl(var(--error));
   }
+
+  /* Arabic text support */
+  .arabic-text {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Amiri', 'Tahoma', 'Arial Unicode MS', sans-serif;
+  }
+  
+  .mixed-text {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: plaintext;
+  }
+  
+  /* Auto-detect text direction */
+  .auto-dir {
+    direction: ltr;
+    text-align: start;
+    unicode-bidi: plaintext;
+  }
 }
