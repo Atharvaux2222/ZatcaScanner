@@ -155,7 +155,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
                 size="sm"
                 onClick={handleExport}
                 disabled={qrCodes.length === 0}
-                className="bg-success hover:bg-success/90 text-white w-full sm:w-auto"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 w-full sm:w-auto"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
                 Export Excel
