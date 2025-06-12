@@ -340,12 +340,16 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
   }, []);
 
   return (
-    <Card className="h-fit">
-      <CardContent className="p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">QR Code Scanner</h2>
+    <div className="glass-card p-6 h-fit">
+      <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+          <Camera className="w-4 h-4 text-primary" />
+        </div>
+        QR Code Scanner
+      </h2>
         
         {/* Scanner Mode Toggle */}
-        <div className="flex mb-4 bg-gray-100 rounded-lg p-1">
+        <div className="flex mb-6 glass p-1 rounded-xl">
           <Button
             variant={scanMode === 'camera' ? 'default' : 'ghost'}
             size="sm"
@@ -495,7 +499,6 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
