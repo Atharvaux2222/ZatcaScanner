@@ -9,6 +9,7 @@ import QRScanner from '@/components/qr-scanner';
 import ScanTable from '@/components/scan-table';
 import ExportModal from '@/components/export-modal';
 import DetailModal from '@/components/detail-modal';
+import Logo from '@/components/logo';
 import { ScannedQR } from '@shared/schema';
 
 export default function Scanner() {
@@ -90,19 +91,17 @@ export default function Scanner() {
       {/* Header */}
       <header className="glass border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
-                <QrCode className="text-primary text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">ZATCA QR Scanner</h1>
-                <p className="text-sm text-muted-foreground">Professional QR Code Analysis Tool</p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 sm:h-20 sm:py-0">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Logo className="w-10 h-10 sm:w-12 sm:h-12" />
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">ZATCA QR Scanner</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">Professional QR Code Analysis Tool</p>
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="glass-surface px-4 py-2 rounded-xl">
-                <span className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full sm:w-auto">
+              <div className="glass-surface px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl w-full sm:w-auto">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   Status: <span className="font-semibold text-primary">Active Session</span>
                 </span>
               </div>
@@ -110,7 +109,7 @@ export default function Scanner() {
                 variant="ghost"
                 size="sm"
                 onClick={handleClearSession}
-                className="glass-button text-destructive hover:text-destructive-foreground hover:bg-destructive/20"
+                className="glass-button text-destructive hover:text-destructive-foreground hover:bg-destructive/20 w-full sm:w-auto"
                 disabled={clearSessionMutation.isPending}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
@@ -121,11 +120,11 @@ export default function Scanner() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           
           {/* Scanner Panel */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             <QRScanner 
               sessionId={sessionId} 
               onScanSuccess={() => {
@@ -144,30 +143,30 @@ export default function Scanner() {
                   </div>
                   Session Analytics
                 </h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="glass-surface rounded-xl p-4 text-center border border-primary/20">
-                    <div className="text-3xl font-bold text-primary mb-2">
+                <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-6">
+                  <div className="glass-surface rounded-xl p-3 sm:p-4 text-center border border-primary/20">
+                    <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">
                       {stats?.totalScans || 0}
                     </div>
-                    <div className="text-sm text-muted-foreground font-medium">Total Scans</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Total Scans</div>
                   </div>
-                  <div className="glass-surface rounded-xl p-4 text-center border border-success/20">
-                    <div className="text-3xl font-bold text-success mb-2">
+                  <div className="glass-surface rounded-xl p-3 sm:p-4 text-center border border-success/20">
+                    <div className="text-2xl sm:text-3xl font-bold text-success mb-1 sm:mb-2">
                       {stats?.validScans || 0}
                     </div>
-                    <div className="text-sm text-muted-foreground font-medium">Valid QR Codes</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Valid QR Codes</div>
                   </div>
-                  <div className="glass-surface rounded-xl p-4 text-center border border-warning/20">
-                    <div className="text-3xl font-bold text-warning mb-2">
+                  <div className="glass-surface rounded-xl p-3 sm:p-4 text-center border border-warning/20">
+                    <div className="text-2xl sm:text-3xl font-bold text-warning mb-1 sm:mb-2">
                       {stats?.totalAmount ? stats.totalAmount.toFixed(0) : '0'}
                     </div>
-                    <div className="text-sm text-muted-foreground font-medium">Total Amount (SAR)</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Total Amount (SAR)</div>
                   </div>
-                  <div className="glass-surface rounded-xl p-4 text-center border border-destructive/20">
-                    <div className="text-3xl font-bold text-destructive mb-2">
+                  <div className="glass-surface rounded-xl p-3 sm:p-4 text-center border border-destructive/20">
+                    <div className="text-2xl sm:text-3xl font-bold text-destructive mb-1 sm:mb-2">
                       {stats?.errors || 0}
                     </div>
-                    <div className="text-sm text-muted-foreground font-medium">Scan Errors</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Scan Errors</div>
                   </div>
                 </div>
             </div>

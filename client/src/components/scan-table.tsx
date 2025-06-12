@@ -140,12 +140,13 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
               </div>
               Scanned QR Codes
             </h2>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleClearAll}
                 disabled={qrCodes.length === 0}
+                className="glass-button text-destructive hover:text-destructive-foreground hover:bg-destructive/20 w-full sm:w-auto"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Clear All
@@ -154,7 +155,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
                 size="sm"
                 onClick={handleExport}
                 disabled={qrCodes.length === 0}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-success hover:bg-success/90 text-white w-full sm:w-auto"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
                 Export Excel
@@ -164,14 +165,14 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
         </div>
 
         {/* Progress Bar */}
-        <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>Processing Progress</span>
-            <span>{progressPercentage}%</span>
+        <div className="px-4 sm:px-6 py-3 glass border-b border-white/10">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+            <span className="font-medium">Processing Progress</span>
+            <span className="font-bold text-primary">{progressPercentage}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full glass-surface rounded-full h-3 overflow-hidden">
             <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300" 
+              className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 shadow-lg shadow-primary/20" 
               style={{ width: `${progressPercentage}%` }}
             />
           </div>
@@ -179,7 +180,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
 
         {/* Data Table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-white/10">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
