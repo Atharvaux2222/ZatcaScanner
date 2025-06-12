@@ -228,10 +228,8 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
           canvas.toBlob(async (blob) => {
             if (blob) {
               try {
-                const enhancedResult = await QrScanner.scanImage(blob, {
-                  returnDetailedScanResult: true,
-                });
-                handleQRDetection(enhancedResult.data);
+                const enhancedResult = await QrScanner.scanImage(blob);
+                handleQRDetection(enhancedResult);
               } catch {
                 toast({
                   title: "No QR Code Found",
@@ -321,9 +319,18 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
                 <div className="w-48 h-48 border-2 border-white border-dashed rounded-lg opacity-60"></div>
               </div>
               {/* Scanning Animation */}
-              {isScanning && (
+              {isScanning && !scanCooldown && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-48 h-1 bg-primary opacity-75 animate-pulse"></div>
+                </div>
+              )}
+              {/* Cooldown Overlay */}
+              {scanCooldown && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-lg">
+                  <div className="text-center text-white">
+                    <div className="text-2xl font-bold mb-2">{cooldownTimer}</div>
+                    <div className="text-sm">Scanning paused</div>
+                  </div>
                 </div>
               )}
             </div>
@@ -334,17 +341,27 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
         {scanMode === 'upload' && (
           <div className="mb-4">
             <div 
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors relative ${
+                scanCooldown 
+                  ? 'border-orange-300 bg-orange-50 cursor-not-allowed' 
+                  : 'border-gray-300 hover:border-primary cursor-pointer'
+              }`}
+              onClick={() => !scanCooldown && fileInputRef.current?.click()}
             >
-              <Upload className="w-8 h-8 text-gray-400 mb-2 mx-auto" />
-              <p className="text-sm text-gray-600">Drop QR code image here or click to upload</p>
+              <Upload className={`w-8 h-8 mb-2 mx-auto ${scanCooldown ? 'text-orange-400' : 'text-gray-400'}`} />
+              <p className={`text-sm ${scanCooldown ? 'text-orange-600' : 'text-gray-600'}`}>
+                {scanCooldown 
+                  ? `Scanning paused (${cooldownTimer}s remaining)` 
+                  : 'Drop QR code image here or click to upload'
+                }
+              </p>
               <input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={handleFileUpload}
+                disabled={scanCooldown}
               />
             </div>
           </div>
@@ -355,16 +372,20 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
         {/* Scan Status */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <div className={`w-3 h-3 rounded-full mr-2 ${isScanning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+            <div className={`w-3 h-3 rounded-full mr-2 ${
+              scanCooldown ? 'bg-orange-500 animate-pulse' : 
+              isScanning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+            }`} />
             <span className="text-sm text-gray-600">
-              {isScanning ? 'Scanning...' : 'Ready to scan'}
+              {scanCooldown ? `Cooldown: ${cooldownTimer}s` : 
+               isScanning ? 'Scanning...' : 'Ready to scan'}
             </span>
           </div>
           {scanMode === 'camera' && (
             <Button
               onClick={toggleScanning}
               size="sm"
-              disabled={false}
+              disabled={scanCooldown}
             >
               {isScanning ? (
                 <>
