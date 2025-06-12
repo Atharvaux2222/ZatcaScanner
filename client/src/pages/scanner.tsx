@@ -81,27 +81,40 @@ export default function Scanner() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen relative">
+      {/* Background Pattern */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50"></div>
+      </div>
+
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="glass border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <QrCode className="text-primary text-2xl mr-3" />
-              <h1 className="text-xl font-semibold text-gray-900">ZATCA QR Scanner</h1>
+          <div className="flex justify-between items-center h-20">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
+                <QrCode className="text-primary text-xl" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">ZATCA QR Scanner</h1>
+                <p className="text-sm text-muted-foreground">Professional QR Code Analysis Tool</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Session: <span className="font-medium">Active</span>
-              </span>
+            <div className="flex items-center gap-6">
+              <div className="glass-surface px-4 py-2 rounded-xl">
+                <span className="text-sm text-muted-foreground">
+                  Status: <span className="font-semibold text-primary">Active Session</span>
+                </span>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleClearSession}
-                className="text-gray-600 hover:text-gray-900"
+                className="glass-button text-destructive hover:text-destructive-foreground hover:bg-destructive/20"
                 disabled={clearSessionMutation.isPending}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear Session
               </Button>
             </div>
           </div>
@@ -124,37 +137,40 @@ export default function Scanner() {
             />
 
             {/* Statistics Card */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Statistics</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">
+            <div className="glass-card p-6">
+                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <QrCode className="w-4 h-4 text-primary" />
+                  </div>
+                  Session Analytics
+                </h3>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="glass-surface rounded-xl p-4 text-center border border-primary/20">
+                    <div className="text-3xl font-bold text-primary mb-2">
                       {stats?.totalScans || 0}
                     </div>
-                    <div className="text-sm text-gray-600">Total Scans</div>
+                    <div className="text-sm text-muted-foreground font-medium">Total Scans</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                  <div className="glass-surface rounded-xl p-4 text-center border border-success/20">
+                    <div className="text-3xl font-bold text-success mb-2">
                       {stats?.validScans || 0}
                     </div>
-                    <div className="text-sm text-gray-600">Valid QR Codes</div>
+                    <div className="text-sm text-muted-foreground font-medium">Valid QR Codes</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">
+                  <div className="glass-surface rounded-xl p-4 text-center border border-warning/20">
+                    <div className="text-3xl font-bold text-warning mb-2">
                       {stats?.totalAmount ? stats.totalAmount.toFixed(0) : '0'}
                     </div>
-                    <div className="text-sm text-gray-600">Total Amount (SAR)</div>
+                    <div className="text-sm text-muted-foreground font-medium">Total Amount (SAR)</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">
+                  <div className="glass-surface rounded-xl p-4 text-center border border-destructive/20">
+                    <div className="text-3xl font-bold text-destructive mb-2">
                       {stats?.errors || 0}
                     </div>
-                    <div className="text-sm text-gray-600">Scan Errors</div>
+                    <div className="text-sm text-muted-foreground font-medium">Scan Errors</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           </div>
 
           {/* Data Table */}

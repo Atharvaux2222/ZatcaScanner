@@ -117,6 +117,25 @@
     box-shadow: 0 16px 48px hsla(0, 0%, 0%, 0.1);
   }
 
+  /* Border animations */
+  .border-l-3 { border-left-width: 3px; }
+  .border-r-3 { border-right-width: 3px; }
+  .border-t-3 { border-top-width: 3px; }
+  .border-b-3 { border-bottom-width: 3px; }
+
+  /* Hover effects for glass elements */
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 60px var(--glass-shadow);
+    transition: all 0.3s ease;
+  }
+
+  .glass-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px hsla(172, 68%, 39%, 0.3);
+    transition: all 0.2s ease;
+  }
+
   .text-success {
     color: hsl(var(--success));
   }
