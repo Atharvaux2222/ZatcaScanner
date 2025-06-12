@@ -16,7 +16,7 @@ interface QRScannerProps {
   onClearHistory?: () => void;
 }
 
-export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) {
+export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: QRScannerProps) {
   const [scanMode, setScanMode] = useState<'camera' | 'upload'>('camera');
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanResult, setLastScanResult] = useState<any>(null);
@@ -91,6 +91,11 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       qrScannerInstance.destroy();
       setQrScannerInstance(null);
     }
+  };
+
+  const clearScannedHistory = () => {
+    setScannedDataHistory(new Set());
+    setLastScannedData('');
   };
 
   const startCooldown = () => {
@@ -310,6 +315,12 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       stopCamera();
     };
   }, [scanMode]);
+
+  useEffect(() => {
+    if (onClearHistory) {
+      clearScannedHistory();
+    }
+  }, [onClearHistory]);
 
   useEffect(() => {
     return () => {

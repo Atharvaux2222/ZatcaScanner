@@ -17,6 +17,7 @@ export default function Scanner() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedQR, setSelectedQR] = useState<ScannedQR | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [clearHistoryTrigger, setClearHistoryTrigger] = useState(0);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -51,6 +52,7 @@ export default function Scanner() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/qr-codes', sessionId] });
       queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId, 'stats'] });
+      setClearHistoryTrigger(prev => prev + 1); // Trigger history clear in QR scanner
       toast({
         title: "Session Cleared",
         description: "All scan data has been cleared",
@@ -116,6 +118,9 @@ export default function Scanner() {
               onScanSuccess={() => {
                 // Stats will be refreshed automatically via query invalidation
               }}
+              onClearHistory={clearHistoryTrigger > 0 ? () => {
+                console.log('Clearing QR scanner history');
+              } : undefined}
             />
 
             {/* Statistics Card */}
