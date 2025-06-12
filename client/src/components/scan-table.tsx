@@ -181,57 +181,60 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
         {/* Data Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-gray-50">
+            <thead className="glass-surface">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   <Checkbox
                     checked={selectedIds.size === qrCodes.length && qrCodes.length > 0}
                     onCheckedChange={handleSelectAll}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Seller Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   VAT Number
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   VAT
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="glass-surface divide-y divide-white/10">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-4 sm:px-6 py-12 text-center text-muted-foreground">
                     No QR codes scanned yet. Start scanning to see results here.
                   </td>
                 </tr>
               ) : (
                 currentItems.map((qr: ScannedQR) => (
-                  <tr key={qr.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={qr.id} className="hover:bg-white/10 transition-colors">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <Checkbox
                         checked={selectedIds.has(qr.id)}
                         onCheckedChange={(checked) => handleSelectItem(qr.id, checked as boolean)}
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <Badge 
                         variant={qr.status === 'valid' ? 'default' : 'destructive'}
-                        className="inline-flex items-center"
+                        className={`inline-flex items-center ${qr.status === 'valid' 
+                          ? 'bg-primary/20 text-primary border-primary/30' 
+                          : 'bg-destructive/20 text-destructive border-destructive/30'
+                        } backdrop-blur-sm`}
                       >
                         {qr.status === 'valid' ? (
                           <><CheckCircle className="w-3 h-3 mr-1" />Valid</>
@@ -240,39 +243,41 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
                         )}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                       <span className="auto-dir">{qr.sellerName || '-'}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {qr.vatNumber || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {qr.invoiceDate || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">
                       {qr.totalAmount ? `${parseFloat(qr.totalAmount).toFixed(2)} SAR` : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {qr.vatAmount ? `${parseFloat(qr.vatAmount).toFixed(2)} SAR` : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onViewDetails(qr)}
-                        className="text-primary hover:text-blue-700 mr-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteRecord(qr.id)}
-                        className="text-red-600 hover:text-red-700"
-                        disabled={deleteQRMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewDetails(qr)}
+                          className="glass-button text-primary hover:text-primary-foreground p-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteRecord(qr.id)}
+                          className="glass-button text-destructive hover:text-destructive-foreground p-2"
+                          disabled={deleteQRMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -283,17 +288,18 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
 
         {/* Table Footer */}
         {qrCodes.length > 0 && (
-          <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">{startIndex + 1}-{Math.min(endIndex, qrCodes.length)}</span> of <span className="font-medium">{qrCodes.length}</span> results
+          <div className="px-4 sm:px-6 py-4 glass border-t border-white/10">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-sm text-muted-foreground">
+                Showing <span className="font-medium text-foreground">{startIndex + 1}-{Math.min(endIndex, qrCodes.length)}</span> of <span className="font-medium text-foreground">{qrCodes.length}</span> results
               </div>
-              <div className="flex space-x-2">
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
+                  className="glass-button"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Previous
@@ -303,6 +309,7 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
                   size="sm"
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
+                  className="glass-button"
                 >
                   Next
                   <ChevronRight className="w-4 h-4 ml-1" />
