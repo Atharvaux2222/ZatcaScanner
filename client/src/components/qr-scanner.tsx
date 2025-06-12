@@ -130,8 +130,13 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
     // Check if this QR code has already been scanned in this session
     if (scannedDataHistory.has(qrData)) {
+      // Pause scanner during cooldown to prevent continuous scanning
+      if (qrScannerInstance && scanMode === 'camera') {
+        qrScannerInstance.stop();
+      }
+      
       toast({
-        title: "Already Scanned",
+        title: "Duplicate QR Code",
         description: "This QR code has already been scanned in this session.",
         variant: "destructive",
       });

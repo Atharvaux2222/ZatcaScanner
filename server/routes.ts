@@ -35,7 +35,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const qr = await storage.addScannedQR(qrData);
       res.json(qr);
     } catch (error) {
-      res.status(400).json({ message: "Invalid QR data", error });
+      if (error instanceof Error && error.message.includes('Duplicate QR code')) {
+        res.status(409).json({ message: "Duplicate QR code detected in this session", error: error.message });
+      } else {
+        res.status(400).json({ message: "Invalid QR data", error });
+      }
     }
   });
 
