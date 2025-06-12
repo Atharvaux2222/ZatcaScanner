@@ -13,6 +13,7 @@ import QrScanner from 'qr-scanner';
 interface QRScannerProps {
   sessionId: string;
   onScanSuccess?: () => void;
+  onClearHistory?: () => void;
 }
 
 export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) {
@@ -21,6 +22,7 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   const [lastScanResult, setLastScanResult] = useState<any>(null);
   const [qrScannerInstance, setQrScannerInstance] = useState<QrScanner | null>(null);
   const [lastScannedData, setLastScannedData] = useState<string>('');
+  const [scannedDataHistory, setScannedDataHistory] = useState<Set<string>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanCooldown, setScanCooldown] = useState(false);
   const [cooldownTimer, setCooldownTimer] = useState(0);
@@ -102,6 +104,12 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
           if (cooldownInterval.current) {
             clearInterval(cooldownInterval.current);
           }
+          
+          // Restart scanner after cooldown if we were scanning
+          if (isScanning && qrScannerInstance && scanMode === 'camera') {
+            qrScannerInstance.start();
+          }
+          
           return 0;
         }
         return prev - 1;
@@ -111,7 +119,23 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
 
   const handleQRDetection = (qrData: string) => {
     // Prevent scanning during cooldown or if already processing
-    if (scanCooldown || isProcessing || qrData === lastScannedData) {
+    if (scanCooldown || isProcessing) {
+      return;
+    }
+
+    // Check if this QR code has already been scanned in this session
+    if (scannedDataHistory.has(qrData)) {
+      toast({
+        title: "Already Scanned",
+        description: "This QR code has already been scanned in this session.",
+        variant: "destructive",
+      });
+      startCooldown(); // Still apply cooldown to prevent spam
+      return;
+    }
+
+    // Check if this is the same as the last scanned QR (within a short time window)
+    if (qrData === lastScannedData) {
       return;
     }
 
@@ -124,9 +148,12 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     if (scanMode === 'upload') {
       processQRCode(qrData);
     } else {
-      // Debounce camera scans
+      // Debounce camera scans to prevent rapid-fire detection
       debounceTimeout.current = setTimeout(() => {
-        processQRCode(qrData);
+        // Double-check that we're not in cooldown and this hasn't been scanned
+        if (!scanCooldown && !isProcessing && !scannedDataHistory.has(qrData)) {
+          processQRCode(qrData);
+        }
       }, 500);
     }
   };
@@ -136,6 +163,14 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     
     setIsProcessing(true);
     setLastScannedData(qrData);
+    
+    // Add to scanned history to prevent future duplicates
+    setScannedDataHistory(prev => {
+      const newSet = new Set(Array.from(prev));
+      newSet.add(qrData);
+      return newSet;
+    });
+    
     const parsedData = parseZATCAQR(qrData);
     
     const qrRecord: InsertScannedQR = {
@@ -155,6 +190,11 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       await addQRMutation.mutateAsync(qrRecord);
       setLastScanResult(qrRecord);
       
+      // Temporarily stop the scanner to prevent immediate re-scanning
+      if (qrScannerInstance && isScanning) {
+        qrScannerInstance.stop();
+      }
+      
       // Start cooldown period after successful scan
       startCooldown();
       
@@ -166,6 +206,13 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
         variant: parsedData ? "default" : "destructive",
       });
     } catch (error) {
+      // Remove from history if save failed
+      setScannedDataHistory(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(qrData);
+        return newSet;
+      });
+      
       toast({
         title: "Scan Error",
         description: "Failed to save QR code data. Please try again.",
