@@ -22,10 +22,13 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
   const [qrScannerInstance, setQrScannerInstance] = useState<QrScanner | null>(null);
   const [lastScannedData, setLastScannedData] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [scanCooldown, setScanCooldown] = useState(false);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const cooldownInterval = useRef<NodeJS.Timeout | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,6 +59,17 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
           preferredCamera: 'environment',
           highlightScanRegion: true,
           highlightCodeOutline: true,
+          maxScansPerSecond: 5,
+          calculateScanRegion: (video) => {
+            const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
+            const scanRegionSize = Math.round(0.7 * smallestDimension);
+            return {
+              x: Math.round((video.videoWidth - scanRegionSize) / 2),
+              y: Math.round((video.videoHeight - scanRegionSize) / 2),
+              width: scanRegionSize,
+              height: scanRegionSize,
+            };
+          },
         }
       );
       
@@ -77,9 +91,27 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     }
   };
 
+  const startCooldown = () => {
+    setScanCooldown(true);
+    setCooldownTimer(3);
+    
+    cooldownInterval.current = setInterval(() => {
+      setCooldownTimer((prev) => {
+        if (prev <= 1) {
+          setScanCooldown(false);
+          if (cooldownInterval.current) {
+            clearInterval(cooldownInterval.current);
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
   const handleQRDetection = (qrData: string) => {
-    // Prevent duplicate scans and debounce rapid detections
-    if (qrData === lastScannedData || isProcessing) {
+    // Prevent scanning during cooldown or if already processing
+    if (scanCooldown || isProcessing || qrData === lastScannedData) {
       return;
     }
 
@@ -88,10 +120,15 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       clearTimeout(debounceTimeout.current);
     }
 
-    // Debounce the processing to prevent rapid-fire scans
-    debounceTimeout.current = setTimeout(() => {
+    // Process immediately for file uploads, debounce for camera
+    if (scanMode === 'upload') {
       processQRCode(qrData);
-    }, 1000); // 1 second debounce
+    } else {
+      // Debounce camera scans
+      debounceTimeout.current = setTimeout(() => {
+        processQRCode(qrData);
+      }, 500);
+    }
   };
 
   const processQRCode = async (qrData: string) => {
@@ -118,19 +155,24 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       await addQRMutation.mutateAsync(qrRecord);
       setLastScanResult(qrRecord);
       
+      // Start cooldown period after successful scan
+      startCooldown();
+      
       toast({
-        title: parsedData ? "QR Code Scanned Successfully" : "Invalid QR Code",
+        title: parsedData ? "✅ QR Code Scanned!" : "❌ Invalid QR Code",
         description: parsedData 
-          ? `ZATCA QR code from ${parsedData.sellerName} processed`
-          : "QR code is not in ZATCA format",
+          ? `ZATCA QR code processed successfully. Scanning paused for 3 seconds.`
+          : "QR code is not in ZATCA format. Scanning paused for 3 seconds.",
         variant: parsedData ? "default" : "destructive",
       });
     } catch (error) {
       toast({
         title: "Scan Error",
-        description: "Failed to save QR code data",
+        description: "Failed to save QR code data. Please try again.",
         variant: "destructive",
       });
+      // Still start cooldown even on error to prevent spam
+      startCooldown();
     } finally {
       setIsProcessing(false);
     }
@@ -152,18 +194,63 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
     const file = event.target.files?.[0];
     if (!file) return;
 
-    try {
-      const result = await QrScanner.scanImage(file, {
-        returnDetailedScanResult: true,
-      });
-      
-      handleQRDetection(result.data);
-    } catch (error) {
+    if (scanCooldown) {
       toast({
-        title: "No QR Code Found",
-        description: "Could not detect a QR code in the uploaded image",
+        title: "Please Wait",
+        description: `Scanning is paused. Please wait ${cooldownTimer} seconds.`,
         variant: "destructive",
       });
+      return;
+    }
+
+    try {
+      // Enhanced scanning for better detection of blurry images
+      const result = await QrScanner.scanImage(file);
+      
+      handleQRDetection(result);
+    } catch (error) {
+      // Try with different image processing if first attempt fails
+      try {
+        // Create a canvas to enhance the image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = async () => {
+          canvas.width = img.width * 2; // Upscale for better detection
+          canvas.height = img.height * 2;
+          
+          // Enhanced rendering with image smoothing disabled for sharper edges
+          ctx!.imageSmoothingEnabled = false;
+          ctx!.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // Convert canvas to blob and try scanning again
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              try {
+                const enhancedResult = await QrScanner.scanImage(blob, {
+                  returnDetailedScanResult: true,
+                });
+                handleQRDetection(enhancedResult.data);
+              } catch {
+                toast({
+                  title: "No QR Code Found",
+                  description: "Could not detect a QR code in the uploaded image. Try a clearer image.",
+                  variant: "destructive",
+                });
+              }
+            }
+          });
+        };
+        
+        img.src = URL.createObjectURL(file);
+      } catch {
+        toast({
+          title: "No QR Code Found",
+          description: "Could not detect a QR code in the uploaded image. Try a clearer image.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -184,6 +271,9 @@ export default function QRScanner({ sessionId, onScanSuccess }: QRScannerProps) 
       stopCamera();
       if (debounceTimeout.current) {
         clearTimeout(debounceTimeout.current);
+      }
+      if (cooldownInterval.current) {
+        clearInterval(cooldownInterval.current);
       }
     };
   }, []);
