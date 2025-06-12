@@ -349,11 +349,15 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       </h2>
         
         {/* Scanner Mode Toggle */}
-        <div className="flex mb-6 glass p-1 rounded-xl">
+        <div className="flex mb-6 glass p-1.5 rounded-xl">
           <Button
             variant={scanMode === 'camera' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1"
+            className={`flex-1 transition-all duration-300 ${
+              scanMode === 'camera' 
+                ? 'bg-primary text-primary-foreground shadow-lg' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/20'
+            }`}
             onClick={() => setScanMode('camera')}
           >
             <Camera className="w-4 h-4 mr-2" />
@@ -362,7 +366,11 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
           <Button
             variant={scanMode === 'upload' ? 'default' : 'ghost'}
             size="sm"
-            className="flex-1"
+            className={`flex-1 transition-all duration-300 ${
+              scanMode === 'upload' 
+                ? 'bg-primary text-primary-foreground shadow-lg' 
+                : 'text-muted-foreground hover:text-foreground hover:bg-white/20'
+            }`}
             onClick={() => setScanMode('upload')}
           >
             <Upload className="w-4 h-4 mr-2" />
@@ -372,8 +380,8 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
         {/* Camera Scanner View */}
         {scanMode === 'camera' && (
-          <div className="mb-4">
-            <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-square">
+          <div className="mb-6">
+            <div className="relative glass-surface rounded-2xl overflow-hidden aspect-square border-2 border-primary/20">
               <video
                 ref={videoRef}
                 autoPlay
@@ -383,20 +391,26 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
               />
               {/* Scanning Frame Overlay */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-48 h-48 border-2 border-white border-dashed rounded-lg opacity-60"></div>
+                <div className="w-52 h-52 border-2 border-primary/80 border-dashed rounded-2xl animate-pulse shadow-lg shadow-primary/20"></div>
               </div>
+              {/* Corner Indicators */}
+              <div className="absolute top-4 left-4 w-6 h-6 border-l-3 border-t-3 border-primary rounded-tl-lg"></div>
+              <div className="absolute top-4 right-4 w-6 h-6 border-r-3 border-t-3 border-primary rounded-tr-lg"></div>
+              <div className="absolute bottom-4 left-4 w-6 h-6 border-l-3 border-b-3 border-primary rounded-bl-lg"></div>
+              <div className="absolute bottom-4 right-4 w-6 h-6 border-r-3 border-b-3 border-primary rounded-br-lg"></div>
+              
               {/* Scanning Animation */}
               {isScanning && !scanCooldown && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-48 h-1 bg-primary opacity-75 animate-pulse"></div>
+                  <div className="w-52 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-90 animate-pulse shadow-lg shadow-primary/50"></div>
                 </div>
               )}
               {/* Cooldown Overlay */}
               {scanCooldown && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-lg">
-                  <div className="text-center text-white">
-                    <div className="text-2xl font-bold mb-2">{cooldownTimer}</div>
-                    <div className="text-sm">Scanning paused</div>
+                <div className="absolute inset-0 flex items-center justify-center glass-surface rounded-2xl">
+                  <div className="text-center text-foreground">
+                    <div className="text-3xl font-bold mb-2 text-primary">{cooldownTimer}</div>
+                    <div className="text-sm text-muted-foreground">Scanning paused</div>
                   </div>
                 </div>
               )}
@@ -406,22 +420,31 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
         {/* File Upload Area */}
         {scanMode === 'upload' && (
-          <div className="mb-4">
+          <div className="mb-6">
             <div 
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors relative ${
+              className={`glass-surface border-2 border-dashed rounded-2xl p-10 text-center transition-all duration-300 relative overflow-hidden ${
                 scanCooldown 
-                  ? 'border-orange-300 bg-orange-50 cursor-not-allowed' 
-                  : 'border-gray-300 hover:border-primary cursor-pointer'
+                  ? 'border-warning/40 cursor-not-allowed' 
+                  : 'border-primary/40 hover:border-primary/60 cursor-pointer hover:shadow-lg hover:shadow-primary/10'
               }`}
               onClick={() => !scanCooldown && fileInputRef.current?.click()}
             >
-              <Upload className={`w-8 h-8 mb-2 mx-auto ${scanCooldown ? 'text-orange-400' : 'text-gray-400'}`} />
-              <p className={`text-sm ${scanCooldown ? 'text-orange-600' : 'text-gray-600'}`}>
-                {scanCooldown 
-                  ? `Scanning paused (${cooldownTimer}s remaining)` 
-                  : 'Drop QR code image here or click to upload'
-                }
-              </p>
+              <div className="relative z-10">
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
+                  scanCooldown ? 'bg-warning/20' : 'bg-primary/20'
+                }`}>
+                  <Upload className={`w-8 h-8 ${scanCooldown ? 'text-warning' : 'text-primary'}`} />
+                </div>
+                <p className={`text-lg font-medium mb-2 ${scanCooldown ? 'text-warning' : 'text-foreground'}`}>
+                  {scanCooldown 
+                    ? `Upload paused (${cooldownTimer}s remaining)` 
+                    : 'Drop QR code image here'
+                  }
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {!scanCooldown && 'or click to browse files'}
+                </p>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -437,13 +460,13 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
 
         {/* Scan Status */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center">
-            <div className={`w-3 h-3 rounded-full mr-2 ${
-              scanCooldown ? 'bg-orange-500 animate-pulse' : 
-              isScanning ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className={`w-4 h-4 rounded-full ${
+              scanCooldown ? 'bg-warning animate-pulse shadow-lg shadow-warning/40' : 
+              isScanning ? 'bg-primary animate-pulse shadow-lg shadow-primary/40' : 'bg-muted-foreground/40'
             }`} />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm font-medium text-foreground">
               {scanCooldown ? `Cooldown: ${cooldownTimer}s` : 
                isScanning ? 'Scanning...' : 'Ready to scan'}
             </span>
@@ -453,6 +476,11 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
               onClick={toggleScanning}
               size="sm"
               disabled={scanCooldown}
+              className={`transition-all duration-300 ${
+                isScanning 
+                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                  : 'glass-button text-primary hover:text-primary-foreground'
+              }`}
             >
               {isScanning ? (
                 <>
@@ -471,14 +499,26 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
         {/* Last Scan Result */}
         {lastScanResult && (
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-2">Last Scan Result</h3>
-            <div className="text-xs text-gray-600 space-y-1">
-              <div className="flex items-center">
-                Status: 
+          <div className="glass-surface rounded-2xl p-6 border border-primary/20">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center">
+                {lastScanResult.status === 'valid' ? (
+                  <CheckCircle className="w-3 h-3 text-primary" />
+                ) : (
+                  <AlertCircle className="w-3 h-3 text-destructive" />
+                )}
+              </div>
+              Last Scan Result
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">Status:</span>
                 <Badge 
                   variant={lastScanResult.status === 'valid' ? 'default' : 'destructive'}
-                  className="ml-1"
+                  className={`${lastScanResult.status === 'valid' 
+                    ? 'bg-primary/20 text-primary border-primary/30' 
+                    : 'bg-destructive/20 text-destructive border-destructive/30'
+                  } backdrop-blur-sm`}
                 >
                   {lastScanResult.status === 'valid' ? (
                     <><CheckCircle className="w-3 h-3 mr-1" />Valid ZATCA QR</>
@@ -488,13 +528,22 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
                 </Badge>
               </div>
               {lastScanResult.sellerName && (
-                <div>Seller: <span className="font-medium auto-dir">{lastScanResult.sellerName}</span></div>
+                <div className="flex items-start gap-3">
+                  <span className="text-sm text-muted-foreground min-w-0 flex-shrink-0">Seller:</span>
+                  <span className="font-medium text-foreground break-words">{lastScanResult.sellerName}</span>
+                </div>
               )}
               {lastScanResult.totalAmount && (
-                <div>Amount: <span className="font-medium">{parseFloat(lastScanResult.totalAmount).toFixed(2)} SAR</span></div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Amount:</span>
+                  <span className="font-semibold text-primary text-lg">{parseFloat(lastScanResult.totalAmount).toFixed(2)} SAR</span>
+                </div>
               )}
               {lastScanResult.invoiceDate && (
-                <div>Date: <span className="font-medium">{lastScanResult.invoiceDate}</span></div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Date:</span>
+                  <span className="font-medium text-foreground">{lastScanResult.invoiceDate}</span>
+                </div>
               )}
             </div>
           </div>

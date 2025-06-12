@@ -117,27 +117,29 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
+      <div className="glass-card p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-8 glass rounded-2xl w-1/3"></div>
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                <div key={i} className="h-16 glass rounded-xl"></div>
               ))}
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="p-6 border-b border-gray-200">
+    <div className="glass-card overflow-hidden">
+        <div className="p-6 border-b border-white/10">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold text-gray-900">Scanned QR Codes</h2>
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                <FileSpreadsheet className="w-4 h-4 text-primary" />
+              </div>
+              Scanned QR Codes
+            </h2>
             <div className="flex space-x-2">
               <Button
                 variant="outline"
@@ -308,7 +310,6 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
