@@ -56,12 +56,14 @@ export class MemStorage implements IStorage {
   }
 
   async addScannedQR(insertQR: InsertScannedQR): Promise<ScannedQR> {
-    // Check for duplicates in the same session
-    const existingQRs = Array.from(this.qrs.values())
-      .filter(qr => qr.sessionId === insertQR.sessionId && qr.rawData === insertQR.rawData);
-    
-    if (existingQRs.length > 0) {
-      throw new Error('Duplicate QR code detected in this session');
+    // Only check for duplicates if it's not a manual entry
+    if (!insertQR.isManualEntry) {
+      const existingQRs = Array.from(this.qrs.values())
+        .filter(qr => qr.sessionId === insertQR.sessionId && qr.rawData === insertQR.rawData);
+      
+      if (existingQRs.length > 0) {
+        throw new Error('Duplicate QR code detected in this session');
+      }
     }
     
     const id = this.currentQRId++;
@@ -77,6 +79,8 @@ export class MemStorage implements IStorage {
       subtotal: insertQR.subtotal || null,
       vatAmount: insertQR.vatAmount || null,
       totalAmount: insertQR.totalAmount || null,
+      isManualEntry: insertQR.isManualEntry || false,
+      notes: insertQR.notes || null,
       scannedAt: new Date(),
     };
     this.qrs.set(id, qr);

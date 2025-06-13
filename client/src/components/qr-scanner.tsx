@@ -27,6 +27,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
   const [isProcessing, setIsProcessing] = useState(false);
   const [scanCooldown, setScanCooldown] = useState(false);
   const [cooldownTimer, setCooldownTimer] = useState(0);
+  const [showManualEntry, setShowManualEntry] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -379,6 +380,21 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
           </Button>
         </div>
 
+        {/* Manual Entry Button */}
+        <div className="mb-6">
+          <Button
+            onClick={() => setShowManualEntry(true)}
+            className="w-full glass-button border-2 border-dashed border-primary/40 hover:border-primary/60 transition-all duration-300"
+            size="lg"
+          >
+            <Edit3 className="w-5 h-5 mr-3" />
+            Manual Entry
+            <span className="text-xs text-muted-foreground ml-2">
+              Can't scan? Enter details manually
+            </span>
+          </Button>
+        </div>
+
         {/* Camera Scanner View */}
         {scanMode === 'camera' && (
           <div className="mb-6">
@@ -549,6 +565,17 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
             </div>
           </div>
         )}
+
+        {/* Manual Entry Modal */}
+        <ManualEntryModal
+          isOpen={showManualEntry}
+          onClose={() => setShowManualEntry(false)}
+          sessionId={sessionId}
+          onSuccess={() => {
+            setShowManualEntry(false);
+            onScanSuccess?.();
+          }}
+        />
     </div>
   );
 }

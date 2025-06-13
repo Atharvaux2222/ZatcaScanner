@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { InsertScannedQR } from "@shared/schema";
@@ -120,164 +121,151 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
           </Button>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="sellerName" className="text-sm font-medium text-foreground">
-              Seller Name *
-            </Label>
-            <Input
-              id="sellerName"
-              {...form.register("sellerName")}
-              className="glass-input"
-              placeholder="Enter seller name"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="sellerName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground">Seller Name *</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="glass-input" placeholder="Enter seller name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.sellerName && (
-              <p className="text-sm text-destructive">{form.formState.errors.sellerName.message}</p>
-            )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="vatNumber" className="text-sm font-medium text-foreground">
-              VAT Number *
-            </Label>
-            <Input
-              id="vatNumber"
-              {...form.register("vatNumber")}
-              className="glass-input"
-              placeholder="Enter VAT number"
+            <FormField
+              control={form.control}
+              name="vatNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground">VAT Number *</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="glass-input" placeholder="Enter VAT number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.vatNumber && (
-              <p className="text-sm text-destructive">{form.formState.errors.vatNumber.message}</p>
-            )}
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="invoiceNumber" className="text-sm font-medium text-foreground">
-                Invoice Number *
-              </Label>
-              <Input
-                id="invoiceNumber"
-                {...form.register("invoiceNumber")}
-                className="glass-input"
-                placeholder="Invoice #"
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="invoiceNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-foreground">Invoice Number *</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="glass-input" placeholder="Invoice #" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.invoiceNumber && (
-                <p className="text-sm text-destructive">{form.formState.errors.invoiceNumber.message}</p>
-              )}
+
+              <FormField
+                control={form.control}
+                name="invoiceDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-foreground">Invoice Date *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="date" className="glass-input" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="invoiceDate" className="text-sm font-medium text-foreground">
-                Invoice Date *
-              </Label>
-              <Input
-                id="invoiceDate"
-                type="date"
-                {...form.register("invoiceDate")}
-                className="glass-input"
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="subtotal"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-foreground">Subtotal (SAR) *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" min="0" className="glass-input" placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.invoiceDate && (
-                <p className="text-sm text-destructive">{form.formState.errors.invoiceDate.message}</p>
-              )}
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="subtotal" className="text-sm font-medium text-foreground">
-                Subtotal (SAR) *
-              </Label>
-              <Input
-                id="subtotal"
-                type="number"
-                step="0.01"
-                min="0"
-                {...form.register("subtotal")}
-                className="glass-input"
-                placeholder="0.00"
+              <FormField
+                control={form.control}
+                name="vatAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-foreground">VAT Amount *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" min="0" className="glass-input" placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.subtotal && (
-                <p className="text-sm text-destructive">{form.formState.errors.subtotal.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="vatAmount" className="text-sm font-medium text-foreground">
-                VAT Amount *
-              </Label>
-              <Input
-                id="vatAmount"
-                type="number"
-                step="0.01"
-                min="0"
-                {...form.register("vatAmount")}
-                className="glass-input"
-                placeholder="0.00"
+              <FormField
+                control={form.control}
+                name="totalAmount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-foreground">Total Amount *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="number" step="0.01" min="0" className="glass-input" placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {form.formState.errors.vatAmount && (
-                <p className="text-sm text-destructive">{form.formState.errors.vatAmount.message}</p>
-              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="totalAmount" className="text-sm font-medium text-foreground">
-                Total Amount *
-              </Label>
-              <Input
-                id="totalAmount"
-                type="number"
-                step="0.01"
-                min="0"
-                {...form.register("totalAmount")}
-                className="glass-input"
-                placeholder="0.00"
-              />
-              {form.formState.errors.totalAmount && (
-                <p className="text-sm text-destructive">{form.formState.errors.totalAmount.message}</p>
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-foreground">Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="glass-input resize-none" placeholder="Add any additional notes..." rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes" className="text-sm font-medium text-foreground">
-              Notes (Optional)
-            </Label>
-            <Textarea
-              id="notes"
-              {...form.register("notes")}
-              className="glass-input resize-none"
-              placeholder="Add any additional notes..."
-              rows={3}
             />
-          </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              className="glass-button flex-1"
-              disabled={addManualEntryMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 flex-1"
-              disabled={addManualEntryMutation.isPending}
-            >
-              {addManualEntryMutation.isPending ? (
-                "Adding..."
-              ) : (
-                <>
-                  <PlusCircle className="w-4 h-4 mr-2" />
-                  Add Entry
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                className="glass-button flex-1"
+                disabled={addManualEntryMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 flex-1"
+                disabled={addManualEntryMutation.isPending}
+              >
+                {addManualEntryMutation.isPending ? (
+                  "Adding..."
+                ) : (
+                  <>
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Add Entry
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
