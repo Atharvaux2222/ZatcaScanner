@@ -2,12 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Upload, Play, Square, AlertCircle, CheckCircle } from 'lucide-react';
+import { Camera, Upload, Play, Square, AlertCircle, CheckCircle, Edit3 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { parseZATCAQR } from '@/lib/zatca-parser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { InsertScannedQR } from '@shared/schema';
+import ManualEntryModal from '@/components/manual-entry-modal';
 import QrScanner from 'qr-scanner';
 
 interface QRScannerProps {

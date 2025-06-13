@@ -20,6 +20,8 @@ export const scannedQRs = pgTable("scanned_qrs", {
   vatAmount: decimal("vat_amount", { precision: 10, scale: 2 }),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }),
   rawData: text("raw_data").notNull(),
+  isManualEntry: boolean("is_manual_entry").default(false),
+  notes: text("notes"),
   scannedAt: timestamp("scanned_at").defaultNow().notNull(),
 });
 
