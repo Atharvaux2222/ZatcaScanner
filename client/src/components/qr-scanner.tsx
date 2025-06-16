@@ -220,7 +220,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
           : "QR code is not in ZATCA format. Scanning paused for 1 second.",
         variant: parsedData ? "default" : "destructive",
       });
-    } catch (error) {
+    } catch (error: any) {
       // Remove from history if save failed
       setScannedDataHistory(prev => {
         const newSet = new Set(prev);
@@ -228,11 +228,20 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
         return newSet;
       });
       
-      toast({
-        title: "Scan Error",
-        description: "Failed to save QR code data. Please try again.",
-        variant: "destructive",
-      });
+      // Check if it's a duplicate QR code error (409 status)
+      if (error?.message?.includes('409:') || error?.message?.includes('Duplicate QR code')) {
+        toast({
+          title: "QR Code Already Scanned",
+          description: "This QR code has already been scanned in this session.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Scan Error",
+          description: "Failed to save QR code data. Please try again.",
+          variant: "destructive",
+        });
+      }
       // Still start cooldown even on error to prevent spam
       startCooldown();
     } finally {
