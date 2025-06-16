@@ -47,6 +47,9 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       queryClient.invalidateQueries({ queryKey: ['/api/sessions', sessionId, 'stats'] });
       onScanSuccess?.();
     },
+    onError: (error) => {
+      console.error('QR mutation error:', error);
+    },
   });
 
   const startCamera = async () => {
@@ -93,7 +96,12 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
   const stopCamera = () => {
     if (qrScannerInstance) {
-      qrScannerInstance.destroy();
+      try {
+        qrScannerInstance.stop();
+        qrScannerInstance.destroy();
+      } catch (error) {
+        console.log('Scanner was already destroyed');
+      }
       setQrScannerInstance(null);
     }
   };
@@ -117,7 +125,13 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
           
           // Restart scanner after cooldown if we were scanning
           if (isScanning && qrScannerInstance && scanMode === 'camera') {
-            qrScannerInstance.start();
+            try {
+              qrScannerInstance.start();
+            } catch (error) {
+              // Scanner was destroyed, recreate it
+              console.log('Scanner was destroyed, recreating...');
+              startCamera();
+            }
           }
           
           return 0;
@@ -137,7 +151,11 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
     if (scannedDataHistory.has(qrData)) {
       // Pause scanner during cooldown to prevent continuous scanning
       if (qrScannerInstance && scanMode === 'camera') {
-        qrScannerInstance.stop();
+        try {
+          qrScannerInstance.stop();
+        } catch (error) {
+          console.log('Scanner already stopped');
+        }
       }
       
       toast({
@@ -161,13 +179,13 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
     // Process immediately for file uploads, debounce for camera
     if (scanMode === 'upload') {
-      processQRCode(qrData);
+      processQRCode(qrData).catch(console.error);
     } else {
       // Debounce camera scans to prevent rapid-fire detection
       debounceTimeout.current = setTimeout(() => {
         // Double-check that we're not in cooldown and this hasn't been scanned
         if (!scanCooldown && !isProcessing && !scannedDataHistory.has(qrData)) {
-          processQRCode(qrData);
+          processQRCode(qrData).catch(console.error);
         }
       }, 200);
     }
@@ -207,7 +225,11 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       
       // Temporarily stop the scanner to prevent immediate re-scanning
       if (qrScannerInstance && isScanning) {
-        qrScannerInstance.stop();
+        try {
+          qrScannerInstance.stop();
+        } catch (error) {
+          console.log('Scanner already stopped');
+        }
       }
       
       // Start cooldown period after successful scan
