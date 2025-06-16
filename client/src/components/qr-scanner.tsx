@@ -387,10 +387,11 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
         <div className="mb-6">
           <Button
             onClick={() => setShowManualEntry(true)}
-            className="w-full glass-button border-2 border-dashed border-primary/40 hover:border-primary/60 transition-all duration-300"
+            variant="outline"
+            className="w-full glass-surface border-2 border-dashed border-primary/40 hover:border-primary/60 hover:bg-primary/10 transition-all duration-300 text-foreground hover:text-primary"
             size="lg"
           >
-            <Edit3 className="w-5 h-5 mr-3" />
+            <Edit3 className="w-5 h-5 mr-3 text-primary" />
             Manual Entry
             <span className="text-xs text-muted-foreground ml-2">
               Can't scan? Enter details manually

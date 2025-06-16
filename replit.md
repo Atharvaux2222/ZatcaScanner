@@ -95,6 +95,8 @@ The build process creates static assets for the frontend and a bundled Node.js a
 ```
 Changelog:
 - June 16, 2025. Initial setup
+- June 16, 2025. Optimized QR scanning performance: increased scan rate to 10/sec, reduced debounce to 200ms, shortened cooldown to 1s, improved backend response times
+- June 16, 2025. Fixed Manual Entry button colors to match design theme with proper glass surface styling
 ```
 
 ## User Preferences
