@@ -105,7 +105,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
   const startCooldown = () => {
     setScanCooldown(true);
-    setCooldownTimer(1);
+    setCooldownTimer(3);
     
     cooldownInterval.current = setInterval(() => {
       setCooldownTimer((prev) => {
@@ -216,8 +216,8 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       toast({
         title: parsedData ? "✅ QR Code Scanned!" : "❌ Invalid QR Code",
         description: parsedData 
-          ? `ZATCA QR code processed successfully. Scanning paused for 1 second.`
-          : "QR code is not in ZATCA format. Scanning paused for 1 second.",
+          ? `ZATCA QR code processed successfully. Scanning paused for 3 seconds.`
+          : "QR code is not in ZATCA format. Scanning paused for 3 seconds.",
         variant: parsedData ? "default" : "destructive",
       });
     } catch (error: any) {
