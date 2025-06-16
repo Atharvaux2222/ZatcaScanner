@@ -107,18 +107,13 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="glass max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
             Manual Entry
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="glass-button p-2"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Enter ZATCA QR invoice details manually when scanning is not possible
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

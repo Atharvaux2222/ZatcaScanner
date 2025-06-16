@@ -97,6 +97,9 @@ Changelog:
 - June 16, 2025. Initial setup
 - June 16, 2025. Optimized QR scanning performance: increased scan rate to 10/sec, reduced debounce to 200ms, shortened cooldown to 1s, improved backend response times
 - June 16, 2025. Fixed Manual Entry button colors to match design theme with proper glass surface styling
+- June 16, 2025. Migration completed from Replit Agent to Replit environment
+- June 16, 2025. Fixed mobile header logo size (reduced from 28x28 to 16x16) and reduced spacing
+- June 16, 2025. Enhanced Manual Entry button styling with improved glass morphism design and better layout
 ```
 
 ## User Preferences
