@@ -32,8 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/qr-codes", async (req, res) => {
     try {
       const qrData = insertScannedQRSchema.parse(req.body);
+      
+      // Fast response - process immediately without validation delays
       const qr = await storage.addScannedQR(qrData);
-      res.json(qr);
+      
+      // Send response immediately
+      res.status(201).json(qr);
     } catch (error) {
       if (error instanceof Error && error.message.includes('Duplicate QR code')) {
         res.status(409).json({ message: "Duplicate QR code detected in this session", error: error.message });

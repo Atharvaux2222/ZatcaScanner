@@ -56,17 +56,20 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       const scanner = new QrScanner(
         videoRef.current,
         (result) => {
-          handleQRDetection(result.data);
+          // Immediate processing for better responsiveness
+          if (result?.data && !scanCooldown && !isProcessing) {
+            handleQRDetection(result.data);
+          }
         },
         {
           returnDetailedScanResult: true,
           preferredCamera: 'environment',
           highlightScanRegion: true,
           highlightCodeOutline: true,
-          maxScansPerSecond: 5,
+          maxScansPerSecond: 10,
           calculateScanRegion: (video) => {
             const smallestDimension = Math.min(video.videoWidth, video.videoHeight);
-            const scanRegionSize = Math.round(0.7 * smallestDimension);
+            const scanRegionSize = Math.round(0.8 * smallestDimension);
             return {
               x: Math.round((video.videoWidth - scanRegionSize) / 2),
               y: Math.round((video.videoHeight - scanRegionSize) / 2),
@@ -102,7 +105,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
 
   const startCooldown = () => {
     setScanCooldown(true);
-    setCooldownTimer(3);
+    setCooldownTimer(1);
     
     cooldownInterval.current = setInterval(() => {
       setCooldownTimer((prev) => {
@@ -166,7 +169,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
         if (!scanCooldown && !isProcessing && !scannedDataHistory.has(qrData)) {
           processQRCode(qrData);
         }
-      }, 500);
+      }, 200);
     }
   };
 
@@ -213,8 +216,8 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       toast({
         title: parsedData ? "✅ QR Code Scanned!" : "❌ Invalid QR Code",
         description: parsedData 
-          ? `ZATCA QR code processed successfully. Scanning paused for 3 seconds.`
-          : "QR code is not in ZATCA format. Scanning paused for 3 seconds.",
+          ? `ZATCA QR code processed successfully. Scanning paused for 1 second.`
+          : "QR code is not in ZATCA format. Scanning paused for 1 second.",
         variant: parsedData ? "default" : "destructive",
       });
     } catch (error) {
