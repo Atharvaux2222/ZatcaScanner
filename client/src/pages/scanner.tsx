@@ -93,7 +93,7 @@ export default function Scanner() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 py-4 sm:h-20 sm:py-0">
             <div className="flex items-center gap-3 sm:gap-4">
-              <Logo className="w-20 h-20 sm:w-24 sm:h-24" />
+              <Logo className="w-28 h-28 sm:w-32 sm:h-32" />
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full sm:w-auto">
               <div className="glass-surface px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl w-full sm:w-auto">
