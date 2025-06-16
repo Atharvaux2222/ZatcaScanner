@@ -100,6 +100,7 @@ Changelog:
 - June 16, 2025. Migration completed from Replit Agent to Replit environment
 - June 16, 2025. Fixed mobile header logo size (reduced from 28x28 to 16x16) and reduced spacing
 - June 16, 2025. Enhanced Manual Entry button styling with improved glass morphism design and better layout
+- June 16, 2025. Fixed duplicate close button issue in modals by removing custom close buttons and using built-in dialog close functionality
 ```
 
 ## User Preferences
