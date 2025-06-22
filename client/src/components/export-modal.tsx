@@ -48,7 +48,7 @@ export default function ExportModal({ isOpen, onClose, qrCodes, selectedIds }: E
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const options: ExportOptions = {
       filename,
       includeHeaders,
@@ -57,11 +57,11 @@ export default function ExportModal({ isOpen, onClose, qrCodes, selectedIds }: E
     };
 
     try {
-      exportToExcel(qrCodes, options);
+      await exportToExcel(qrCodes, options);
       
       toast({
         title: "Export Successful",
-        description: `Excel file "${filename}.xlsx" has been downloaded`,
+        description: `Excel file "${filename}.xlsx" has been downloaded with ZatScan logo`,
       });
       
       onClose();
