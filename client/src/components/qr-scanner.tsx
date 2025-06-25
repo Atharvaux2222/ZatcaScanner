@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Camera, Upload, Play, Square, AlertCircle, CheckCircle, Edit3 } from 'lucide-react';
+import { Camera, Upload, Play, Square, AlertCircle, CheckCircle, Edit3, Flashlight, FlashlightOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { parseZATCAQR } from '@/lib/zatca-parser';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
   const [scanCooldown, setScanCooldown] = useState(false);
   const [cooldownTimer, setCooldownTimer] = useState(0);
   const [showManualEntry, setShowManualEntry] = useState(false);
+  const [isFlashlightOn, setIsFlashlightOn] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -103,6 +104,45 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
         console.log('Scanner was already destroyed');
       }
       setQrScannerInstance(null);
+    }
+    // Turn off flashlight when stopping camera
+    if (isFlashlightOn) {
+      setIsFlashlightOn(false);
+    }
+  };
+
+  const toggleFlashlight = async () => {
+    if (!qrScannerInstance) {
+      toast({
+        title: "Camera Not Active",
+        description: "Please start the camera first to use the flashlight.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (isFlashlightOn) {
+        await qrScannerInstance.turnFlashOff();
+        setIsFlashlightOn(false);
+        toast({
+          title: "Flashlight Off",
+          description: "Flashlight has been turned off.",
+        });
+      } else {
+        await qrScannerInstance.turnFlashOn();
+        setIsFlashlightOn(true);
+        toast({
+          title: "Flashlight On",
+          description: "Flashlight has been turned on.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Flashlight Error",
+        description: "Unable to control flashlight. It may not be supported on this device.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -532,28 +572,48 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
             </span>
           </div>
           {scanMode === 'camera' && (
-            <Button
-              onClick={toggleScanning}
-              size="sm"
-              disabled={scanCooldown}
-              className={`transition-all duration-300 ${
-                isScanning 
-                  ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
-                  : 'glass-button text-primary hover:text-primary-foreground'
-              }`}
-            >
-              {isScanning ? (
-                <>
-                  <Square className="w-4 h-4 mr-2" />
-                  Stop Scan
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4 mr-2" />
-                  Start Scan
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={toggleFlashlight}
+                size="sm"
+                variant="outline"
+                disabled={!qrScannerInstance}
+                className={`transition-all duration-300 ${
+                  isFlashlightOn 
+                    ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-600 border-yellow-500/40' 
+                    : 'glass-button text-muted-foreground hover:text-foreground'
+                }`}
+                title={isFlashlightOn ? 'Turn off flashlight' : 'Turn on flashlight'}
+              >
+                {isFlashlightOn ? (
+                  <Flashlight className="w-4 h-4" />
+                ) : (
+                  <FlashlightOff className="w-4 h-4" />
+                )}
+              </Button>
+              <Button
+                onClick={toggleScanning}
+                size="sm"
+                disabled={scanCooldown}
+                className={`transition-all duration-300 ${
+                  isScanning 
+                    ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
+                    : 'glass-button text-primary hover:text-primary-foreground'
+                }`}
+              >
+                {isScanning ? (
+                  <>
+                    <Square className="w-4 h-4 mr-2" />
+                    Stop Scan
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Start Scan
+                  </>
+                )}
+              </Button>
+            </div>
           )}
         </div>
 
