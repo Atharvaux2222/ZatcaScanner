@@ -29,6 +29,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
   const [cooldownTimer, setCooldownTimer] = useState(0);
   const [showManualEntry, setShowManualEntry] = useState(false);
   const [isFlashlightOn, setIsFlashlightOn] = useState(false);
+  const [hasFlashlightSupport, setHasFlashlightSupport] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -86,6 +87,15 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
       
       setQrScannerInstance(scanner);
       await scanner.start();
+      
+      // Check flashlight support after scanner starts
+      try {
+        const flashSupported = await scanner.hasFlash();
+        setHasFlashlightSupport(flashSupported);
+      } catch (error) {
+        console.log('Flash support check failed:', error);
+        setHasFlashlightSupport(false);
+      }
     } catch (error) {
       toast({
         title: "Camera Error",
@@ -109,6 +119,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
     if (isFlashlightOn) {
       setIsFlashlightOn(false);
     }
+    setHasFlashlightSupport(false);
   };
 
   const toggleFlashlight = async () => {
@@ -122,6 +133,17 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
     }
 
     try {
+      // Check if flashlight is supported first
+      const hasFlash = await qrScannerInstance.hasFlash();
+      if (!hasFlash) {
+        toast({
+          title: "Flashlight Not Available",
+          description: "Your device doesn't support flashlight control.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (isFlashlightOn) {
         await qrScannerInstance.turnFlashOff();
         setIsFlashlightOn(false);
@@ -138,9 +160,10 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
         });
       }
     } catch (error) {
+      console.error('Flashlight error:', error);
       toast({
         title: "Flashlight Error",
-        description: "Unable to control flashlight. It may not be supported on this device.",
+        description: "Unable to control flashlight. This feature may not be available in this browser or device.",
         variant: "destructive",
       });
     }
@@ -573,24 +596,26 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
           </div>
           {scanMode === 'camera' && (
             <div className="flex items-center gap-2">
-              <Button
-                onClick={toggleFlashlight}
-                size="sm"
-                variant="outline"
-                disabled={!qrScannerInstance}
-                className={`transition-all duration-300 ${
-                  isFlashlightOn 
-                    ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-600 border-yellow-500/40' 
-                    : 'glass-button text-muted-foreground hover:text-foreground'
-                }`}
-                title={isFlashlightOn ? 'Turn off flashlight' : 'Turn on flashlight'}
-              >
-                {isFlashlightOn ? (
-                  <Flashlight className="w-4 h-4" />
-                ) : (
-                  <FlashlightOff className="w-4 h-4" />
-                )}
-              </Button>
+              {hasFlashlightSupport && (
+                <Button
+                  onClick={toggleFlashlight}
+                  size="sm"
+                  variant="outline"
+                  disabled={!qrScannerInstance}
+                  className={`transition-all duration-300 ${
+                    isFlashlightOn 
+                      ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-600 border-yellow-500/40' 
+                      : 'glass-button text-muted-foreground hover:text-foreground'
+                  }`}
+                  title={isFlashlightOn ? 'Turn off flashlight' : 'Turn on flashlight'}
+                >
+                  {isFlashlightOn ? (
+                    <Flashlight className="w-4 h-4" />
+                  ) : (
+                    <FlashlightOff className="w-4 h-4" />
+                  )}
+                </Button>
+              )}
               <Button
                 onClick={toggleScanning}
                 size="sm"
