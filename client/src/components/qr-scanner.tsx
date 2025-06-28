@@ -172,6 +172,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
   const clearScannedHistory = () => {
     setScannedDataHistory(new Set());
     setLastScannedData('');
+    setLastScanResult(null);
   };
 
   const startCooldown = () => {
