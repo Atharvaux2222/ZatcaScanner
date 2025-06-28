@@ -107,6 +107,7 @@ Changelog:
 - June 22, 2025. Fixed logo overlapping issue by creating dedicated logo space (A1:C3) and repositioning headers for clean professional layout
 - June 25, 2025. Added flashlight toggle button to QR scanner for scanning in dark environments with smart controls and visual feedback
 - June 28, 2025. Hidden Start Scan button for streamlined user experience with automatic scanning
+- June 28, 2025. Updated manual entry modal: fixed subtitle color, removed Notes field, and changed background to white
 ```
 
 ## User Preferences

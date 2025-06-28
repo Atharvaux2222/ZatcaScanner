@@ -104,7 +104,7 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="glass max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-white max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
             Manual Entry
