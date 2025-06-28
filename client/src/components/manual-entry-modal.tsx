@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -29,7 +29,6 @@ const manualEntrySchema = z.object({
   subtotal: z.string().min(1, "Subtotal is required").refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
   vatAmount: z.string().min(1, "VAT amount is required").refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
   totalAmount: z.string().min(1, "Total amount is required").refine((val) => !isNaN(Number(val)) && Number(val) >= 0, "Must be a valid positive number"),
-  notes: z.string().optional(),
 });
 
 type ManualEntryFormData = z.infer<typeof manualEntrySchema>;
@@ -48,7 +47,6 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
       subtotal: "",
       vatAmount: "",
       totalAmount: "",
-      notes: "",
     },
   });
 
@@ -66,7 +64,7 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
         totalAmount: data.totalAmount,
         status: 'valid',
         isManualEntry: true,
-        notes: data.notes || null,
+        notes: null,
       };
 
       const response = await apiRequest('POST', '/api/qr-codes', qrRecord);
@@ -111,7 +109,7 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
           <DialogTitle className="text-lg font-semibold text-foreground">
             Manual Entry
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm text-foreground">
             Enter ZATCA QR invoice details manually when scanning is not possible
           </DialogDescription>
         </DialogHeader>
@@ -220,19 +218,7 @@ export default function ManualEntryModal({ isOpen, onClose, sessionId, onSuccess
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-foreground">Notes (Optional)</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} className="glass-input resize-none" placeholder="Add any additional notes..." rows={3} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
 
             <div className="flex gap-3 pt-4">
               <Button
