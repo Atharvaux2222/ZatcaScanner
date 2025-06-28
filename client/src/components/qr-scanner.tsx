@@ -592,7 +592,7 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
             }`} />
             <span className="text-sm font-medium text-foreground">
               {scanCooldown ? `Cooldown: ${cooldownTimer}s` : 
-               isScanning ? 'Scanning...' : 'Ready to scan'}
+               isScanning ? 'Scanning...' : ''}
             </span>
           </div>
           {scanMode === 'camera' && (
