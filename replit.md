@@ -106,6 +106,7 @@ Changelog:
 - June 22, 2025. Implemented ExcelJS library for proper logo image embedding with professional Excel formatting and ZatScan branding
 - June 22, 2025. Fixed logo overlapping issue by creating dedicated logo space (A1:C3) and repositioning headers for clean professional layout
 - June 25, 2025. Added flashlight toggle button to QR scanner for scanning in dark environments with smart controls and visual feedback
+- June 28, 2025. Hidden Start Scan button for streamlined user experience with automatic scanning
 ```
 
 ## User Preferences

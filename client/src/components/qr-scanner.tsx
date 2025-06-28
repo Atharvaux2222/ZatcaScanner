@@ -616,28 +616,6 @@ export default function QRScanner({ sessionId, onScanSuccess, onClearHistory }: 
                   )}
                 </Button>
               )}
-              <Button
-                onClick={toggleScanning}
-                size="sm"
-                disabled={scanCooldown}
-                className={`transition-all duration-300 ${
-                  isScanning 
-                    ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
-                    : 'glass-button text-primary hover:text-primary-foreground'
-                }`}
-              >
-                {isScanning ? (
-                  <>
-                    <Square className="w-4 h-4 mr-2" />
-                    Stop Scan
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    Start Scan
-                  </>
-                )}
-              </Button>
             </div>
           )}
         </div>
