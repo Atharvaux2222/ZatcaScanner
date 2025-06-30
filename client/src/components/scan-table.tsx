@@ -96,7 +96,8 @@ export default function ScanTable({ sessionId, onExport, onViewDetails }: ScanTa
   };
 
   const handleClearAll = async () => {
-    if (confirm('Are you sure you want to clear all QR codes?')) {
+    const confirmMessage = 'All unsaved changes will be deleted. Are you sure you want to clear all QR codes from this session?';
+    if (window.confirm(confirmMessage)) {
       await clearAllMutation.mutateAsync();
     }
   };

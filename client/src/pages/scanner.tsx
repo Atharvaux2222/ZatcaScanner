@@ -66,7 +66,8 @@ export default function Scanner() {
   }, []);
 
   const handleClearSession = async () => {
-    if (confirm('Are you sure you want to clear all scanned data?')) {
+    const confirmMessage = 'All unsaved changes will be deleted. Are you sure you want to clear all scanned data from this session?';
+    if (window.confirm(confirmMessage)) {
       await clearSessionMutation.mutateAsync();
     }
   };

@@ -110,6 +110,9 @@ Changelog:
 - June 28, 2025. Updated manual entry modal: fixed subtitle color, removed Notes field, and changed background to white
 - June 28, 2025. Fixed Clear Session functionality to properly clear "last scan result" display
 - June 28, 2025. Removed "Ready to scan" status text for cleaner interface
+- June 30, 2025. Migration completed from Replit Agent to Replit environment
+- June 30, 2025. Updated Excel export to use correct website URL (www.zatscan.com instead of www.growthsphereindustries.com)
+- June 30, 2025. Enhanced clear session confirmation with Gmail-style warning about unsaved changes being deleted
 ```
 
 ## User Preferences

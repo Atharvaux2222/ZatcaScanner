@@ -63,11 +63,7 @@ export async function exportToExcel(
     });
     
     // Add logo to worksheet in dedicated space (A1:C3)
-    worksheet.addImage(logoId, {
-      tl: { col: 0, row: 0 },
-      br: { col: 2, row: 2 },
-      ext: { width: 180, height: 45 }
-    });
+    worksheet.addImage(logoId, 'A1:C3');
   }
   
   // Add header with ZatScan branding starting from column D
@@ -94,7 +90,7 @@ export async function exportToExcel(
   worksheet.getCell('H5').value = 'Export Date:';
   worksheet.getCell('I5').value = new Date().toLocaleDateString();
   
-  worksheet.getCell('A6').value = 'Website: www.growthsphereindustries.com';
+  worksheet.getCell('A6').value = 'Website: www.zatscan.com';
   worksheet.getCell('H6').value = 'Export Time:';
   worksheet.getCell('I6').value = new Date().toLocaleTimeString();
   
