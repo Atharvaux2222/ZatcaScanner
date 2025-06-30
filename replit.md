@@ -91,6 +91,14 @@ The application is configured for deployment on multiple platforms:
 - **Configuration**: Includes `railway.toml` for deployment settings
 - **Docker Support**: Dockerfile for containerized deployment
 - **Build Process**: Uses Nixpacks builder with automatic dependency installation
+
+### Vercel Platform
+- **Configuration**: Includes `vercel.json` for serverless deployment
+- **Serverless Functions**: API routes handled via Vercel Functions
+- **Static Assets**: Frontend served from CDN with optimized caching
+- **Build Process**: Vite build for frontend, serverless functions for backend
+
+**Common Configuration:**
 - **Port Configuration**: Backend serves on port 5000, frontend proxied through Vite in development
 - **Database**: Configured for PostgreSQL with environment-based connection strings
 
