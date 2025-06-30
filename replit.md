@@ -80,15 +80,21 @@ The application implements a flexible storage interface (`IStorage`) with two im
 
 ## Deployment Strategy
 
-The application is configured for deployment on Replit's platform:
+The application is configured for deployment on multiple platforms:
 
+### Replit Platform
 - **Development**: `npm run dev` starts both frontend and backend in development mode
 - **Build**: `npm run build` creates optimized production bundles
 - **Production**: `npm run start` serves the production application
-- **Database**: Configured for PostgreSQL with environment-based connection strings
-- **Port Configuration**: Backend serves on port 5000, frontend proxied through Vite in development
 
-The build process creates static assets for the frontend and a bundled Node.js application for the backend, suitable for serverless deployment environments.
+### Railway Platform
+- **Configuration**: Includes `railway.toml` for deployment settings
+- **Docker Support**: Dockerfile for containerized deployment
+- **Build Process**: Uses Nixpacks builder with automatic dependency installation
+- **Port Configuration**: Backend serves on port 5000, frontend proxied through Vite in development
+- **Database**: Configured for PostgreSQL with environment-based connection strings
+
+The build process creates static assets for the frontend and a bundled Node.js application for the backend, suitable for serverless and containerized deployment environments.
 
 ## Changelog
 
