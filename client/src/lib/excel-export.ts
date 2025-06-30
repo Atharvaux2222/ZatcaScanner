@@ -111,7 +111,7 @@ export async function exportToExcel(
   
   // Add data headers
   const headerRow = 12;
-  const headers = ['Row', 'Status', 'Seller Name', 'VAT Number', 'Invoice Number', 'Invoice Date', 'Subtotal (SAR)', 'VAT Amount (SAR)', 'Total Amount (SAR)', 'Scanned At'];
+  const headers = ['Row', 'Status', 'Seller Name', 'VAT Number', 'Invoice Number', 'Invoice Date', 'Subtotal (SAR)', 'VAT Amount (SAR)', 'Total Amount (SAR)'];
   
   if (options.includeHeaders) {
     headers.forEach((header, index) => {
@@ -135,7 +135,6 @@ export async function exportToExcel(
     worksheet.getCell(rowIndex, 7).value = qr.subtotal ? parseFloat(qr.subtotal).toFixed(2) : '-';
     worksheet.getCell(rowIndex, 8).value = qr.vatAmount ? parseFloat(qr.vatAmount).toFixed(2) : '-';
     worksheet.getCell(rowIndex, 9).value = qr.totalAmount ? parseFloat(qr.totalAmount).toFixed(2) : '-';
-    worksheet.getCell(rowIndex, 10).value = qr.scannedAt.toLocaleString();
   });
   
   // Add financial summary
@@ -178,7 +177,6 @@ export async function exportToExcel(
     { width: 18 },  // Subtotal
     { width: 18 },  // VAT Amount
     { width: 18 },  // Total Amount
-    { width: 22 },  // Scanned At
   ];
   
   // Generate filename with ZatScan prefix
